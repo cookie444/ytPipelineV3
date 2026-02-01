@@ -42,23 +42,23 @@ http://localhost:5000
 
 ## Deployment
 
-### Render
+### Render (Recommended)
 
-1. Create a new Web Service on Render
-2. Connect your GitHub repository
-3. Set the following:
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `python api_server.py`
-   - **Environment Variables**:
-     - `PORT`: (auto-set by Render)
-     - `HOST`: `0.0.0.0`
+1. Go to [Render Dashboard](https://dashboard.render.com/)
+2. Click "New +" → "Blueprint"
+3. Connect your GitHub repository: `cookie444/ytPipelineV3`
+4. Render will automatically detect the `render.yaml` file
+5. Click "Apply" to deploy
+
+The app will be live at a `*.onrender.com` URL.
 
 ### Railway
 
-1. Create a new project on Railway
-2. Connect your GitHub repository
-3. Railway will auto-detect Python and install dependencies
-4. Set `HOST=0.0.0.0` in environment variables
+1. Go to [Railway](https://railway.app/)
+2. Click "New Project" → "Deploy from GitHub repo"
+3. Select `cookie444/ytPipelineV3`
+4. Railway will auto-detect Python and deploy
+5. Set `HOST=0.0.0.0` in environment variables
 
 ### Other Platforms
 
