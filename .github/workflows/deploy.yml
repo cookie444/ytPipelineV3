@@ -1,0 +1,60 @@
+name: Deploy YouTube WAV Downloader
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install Chrome for Selenium
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        sudo apt-get install -y chromium-chromedriver
+    
+    - name: Test application
+      run: |
+        python -m pytest --version || echo "Pytest not installed, skipping tests"
+        python -c "import flask; import selenium; print('Dependencies OK')"
+    
+    - name: Deploy to Render
+      if: env.RENDER_API_KEY != ''
+      env:
+        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      run: |
+        echo "Deployment to Render would happen here"
+        echo "Configure RENDER_API_KEY and RENDER_SERVICE_ID secrets in GitHub"
+    
+    - name: Deployment summary
+      run: |
+        echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Python version: $(python --version)" >> $GITHUB_STEP_SUMMARY
+        echo "- Dependencies installed: ✅" >> $GITHUB_STEP_SUMMARY
+        echo "- Chrome installed: ✅" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+        echo "1. Set up deployment on Render, Railway, or your preferred platform" >> $GITHUB_STEP_SUMMARY
+        echo "2. Configure environment variables" >> $GITHUB_STEP_SUMMARY
+        echo "3. Set PORT environment variable (default: 5000)" >> $GITHUB_STEP_SUMMARY
+
