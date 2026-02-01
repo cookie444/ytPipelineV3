@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube WAV Downloader</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📥 YouTube WAV Downloader</h1>
+            <p class="subtitle">Download YouTube videos as WAV files via y2down.cc</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Download Video</h2>
+                
+                <div class="form-group">
+                    <label for="youtube-url">YouTube URL:</label>
+                    <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." class="input-field">
+                    <small class="help-text">Enter a YouTube video URL</small>
+                </div>
+
+                <button id="download-btn" class="btn btn-primary">
+                    <span id="btn-text">Download WAV</span>
+                    <span id="btn-spinner" class="spinner hidden"></span>
+                </button>
+
+                <div id="status" class="status-message"></div>
+            </div>
+
+            <div class="card">
+                <h2>Progress</h2>
+                <div class="progress-container">
+                    <div id="progress-bar" class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div id="progress-text" class="progress-text">Ready</div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>YouTube WAV Downloader v1.0</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js?v=2"></script>
+</body>
+</html>
+
