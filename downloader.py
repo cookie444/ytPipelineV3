@@ -217,8 +217,16 @@ def get_download_url(youtube_url: str) -> Tuple[Optional[str], Optional[str]]:
                             matches = re.findall(pattern, page_source, re.IGNORECASE)
                             for match in matches:
                                 if match and len(match) > 30:
-                                    # Check if it looks like a download URL
-                                    if any(keyword in match.lower() for keyword in ['.wav', 'download', 'savenow', 'pacific', 'get', 'file']):
+                                    # Filter out ad/tracking URLs
+                                    if any(exclude in match.lower() for exclude in ['/ajax/ad/', '/ad/', 'tracking', 'analytics', 'pixel']):
+                                        continue
+                                    # Prioritize URLs that look like actual download links
+                                    if any(keyword in match.lower() for keyword in ['pacific', '.wav', '?']):
+                                        download_url = match
+                                        logger.info(f"Found download URL in page source: {download_url}")
+                                        break
+                                    # Fallback to other savenow URLs (but not ad URLs)
+                                    elif 'savenow' in match.lower() and '/ajax/' not in match.lower():
                                         download_url = match
                                         logger.info(f"Found download URL in page source: {download_url}")
                                         break
@@ -232,7 +240,16 @@ def get_download_url(youtube_url: str) -> Tuple[Optional[str], Optional[str]]:
                                 for link in all_links:
                                     href = link.get_attribute('href')
                                     if href and href.startswith('http') and len(href) > 30:
-                                        if any(keyword in href.lower() for keyword in ['download', 'savenow', 'pacific', 'get', '.wav']):
+                                        # Filter out ad/tracking URLs
+                                        if any(exclude in href.lower() for exclude in ['/ajax/ad/', '/ad/', 'tracking', 'analytics']):
+                                            continue
+                                        # Prioritize actual download URLs
+                                        if any(keyword in href.lower() for keyword in ['pacific', '.wav', '?']):
+                                            download_url = href
+                                            logger.info(f"Found download URL in link element: {download_url}")
+                                            break
+                                        # Fallback to other savenow URLs (but not ad URLs)
+                                        elif 'savenow' in href.lower() and '/ajax/' not in href.lower():
                                             download_url = href
                                             logger.info(f"Found download URL in link element: {download_url}")
                                             break
