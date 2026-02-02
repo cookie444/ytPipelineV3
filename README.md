@@ -2,6 +2,10 @@
 
 A simple web application for downloading YouTube videos as WAV files via y2down.cc.
 
+## ⚠️ Status
+
+**This is a working iteration as of February 2, 2026.** The application successfully downloads YouTube videos as WAV files via y2down.cc integration using Selenium automation.
+
 ## Features
 
 - 🎵 Download YouTube videos as WAV files
