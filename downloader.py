@@ -180,31 +180,64 @@ def get_download_url(youtube_url: str) -> Tuple[Optional[str], Optional[str]]:
             if not download_url:
                 download_button.click()
                 logger.info("Clicked download button")
-                time.sleep(3)
+                
+                # Wait longer for page to process and download link to appear
+                time.sleep(5)
                 
                 # Check current URL - might have redirected to download
                 current_url = driver.current_url
-                if current_url != base_url and any(ext in current_url.lower() for ext in ['.wav', '.mp3', '.mp4']):
+                if current_url != base_url and any(ext in current_url.lower() for ext in ['.wav', '.mp3', '.mp4', 'savenow', 'download']):
                     download_url = current_url
                     logger.info(f"Redirected to download URL: {download_url}")
                 else:
-                    # Try to find download link in page source
-                    page_source = driver.page_source
-                    import re
-                    patterns = [
-                        r'https?://[^\s"\'<>]+\.wav',
-                        r'["\'](https?://[^"\']*download[^"\']*\.wav[^"\']*)["\']',
-                        r'downloadUrl["\']?\s*[:=]\s*["\'](https?://[^"\']+)["\']',
-                    ]
-                    for pattern in patterns:
-                        matches = re.findall(pattern, page_source, re.IGNORECASE)
-                        for match in matches:
-                            if match and len(match) > 40 and '.wav' in match.lower():
-                                download_url = match
-                                logger.info(f"Found download URL in page source: {download_url}")
+                    # Wait a bit more and check again
+                    time.sleep(3)
+                    current_url = driver.current_url
+                    if current_url != base_url and 'y2down.cc/en' not in current_url:
+                        # Check if it's a download URL
+                        if any(keyword in current_url.lower() for keyword in ['download', 'get', 'file', 'savenow', 'pacific']):
+                            download_url = current_url
+                            logger.info(f"Found download URL after redirect: {download_url}")
+                    
+                    # Try to find download link in page source with more patterns
+                    if not download_url:
+                        page_source = driver.page_source
+                        import re
+                        patterns = [
+                            r'https?://[^\s"\'<>]+\.wav',
+                            r'https?://[^\s"\'<>]*savenow[^\s"\'<>]+',
+                            r'https?://[^\s"\'<>]*pacific[^\s"\'<>]+',
+                            r'["\'](https?://[^"\']*download[^"\']*\.wav[^"\']*)["\']',
+                            r'["\'](https?://[^"\']*savenow[^"\']*)["\']',
+                            r'downloadUrl["\']?\s*[:=]\s*["\'](https?://[^"\']+)["\']',
+                            r'href\s*=\s*["\'](https?://[^"\']*download[^"\']*)["\']',
+                            r'window\.location\s*=\s*["\'](https?://[^"\']+)["\']',
+                        ]
+                        for pattern in patterns:
+                            matches = re.findall(pattern, page_source, re.IGNORECASE)
+                            for match in matches:
+                                if match and len(match) > 30:
+                                    # Check if it looks like a download URL
+                                    if any(keyword in match.lower() for keyword in ['.wav', 'download', 'savenow', 'pacific', 'get', 'file']):
+                                        download_url = match
+                                        logger.info(f"Found download URL in page source: {download_url}")
+                                        break
+                            if download_url:
                                 break
-                        if download_url:
-                            break
+                        
+                        # Also check all links on the page
+                        if not download_url:
+                            try:
+                                all_links = driver.find_elements(By.TAG_NAME, "a")
+                                for link in all_links:
+                                    href = link.get_attribute('href')
+                                    if href and href.startswith('http') and len(href) > 30:
+                                        if any(keyword in href.lower() for keyword in ['download', 'savenow', 'pacific', 'get', '.wav']):
+                                            download_url = href
+                                            logger.info(f"Found download URL in link element: {download_url}")
+                                            break
+                            except Exception as e:
+                                logger.debug(f"Error checking links: {e}")
             
             # Try to get video title
             try:
